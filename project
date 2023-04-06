@@ -1,0 +1,85 @@
+<?php
+
+const NUM_ROWS = 10; // Number of rows in the coach
+const NUM_SEATS_PER_ROW = 7; // Number of seats in each row
+const LAST_ROW_SEATS = 3; // Number of seats in the last row
+
+$coach = array_fill(0, NUM_ROWS, array_fill(0, NUM_SEATS_PER_ROW, 0)); // Coach represented as a 2D array, initially all seats are available
+
+function displayCoach() {
+    echo "Coach Layout: " . PHP_EOL;
+    echo "---------------------------------------------" . PHP_EOL;
+    echo "ROW \t SEATS" . PHP_EOL;
+    for ($i = 0; $i < NUM_ROWS; $i++) {
+        echo ($i + 1) . "\t";
+        for ($j = 0; $j < NUM_SEATS_PER_ROW; $j++) {
+            if ($GLOBALS['coach'][$i][$j] == 0) {
+                echo "O "; // O represents available seat
+            } else {
+                echo "X "; // X represents booked seat
+            }
+        }
+        echo PHP_EOL;
+    }
+    echo "---------------------------------------------" . PHP_EOL;
+}
+
+function bookSeats($numSeats) {
+    if ($numSeats > 0 && $numSeats <= NUM_SEATS_PER_ROW) {
+        // Iterate through the coach to find consecutive available seats
+        for ($i = 0; $i < NUM_ROWS; $i++) {
+            $consecutiveSeats = 0; // Counter for consecutive available seats in a row
+            $startIndex = -1; // Starting index of consecutive available seats
+            for ($j = 0; $j < NUM_SEATS_PER_ROW; $j++) {
+                if ($GLOBALS['coach'][$i][$j] == 0) {
+                    if ($startIndex == -1) {
+                        $startIndex = $j;
+                    }
+                    $consecutiveSeats++;
+                    if ($consecutiveSeats == $numSeats) {
+                        // Book the seats
+                        for ($k = $startIndex; $k < $startIndex + $numSeats; $k++) {
+                            $GLOBALS['coach'][$i][$k] = 1; // 1 represents booked seat
+                        }
+                        echo "Seats booked successfully!" . PHP_EOL;
+                        return true;
+                    }
+                } else {
+                    $consecutiveSeats = 0;
+                    $startIndex = -1;
+                }
+            }
+        }
+        echo "Seats not available in one row. Booking in nearby seats." . PHP_EOL;
+        // Iterate through the coach to find nearby available seats
+        for ($i = 0; $i < NUM_ROWS; $i++) {
+            for ($j = 0; $j < NUM_SEATS_PER_ROW; $j++) {
+                if ($GLOBALS['coach'][$i][$j] == 0) {
+                    // Book the seats
+                    for ($k = $j; $k < $j + $numSeats; $k++) {
+                        $GLOBALS['coach'][$i][$k] = 1; // 1 represents booked seat
+                    }
+                    echo "Seats booked successfully!" . PHP_EOL;
+                    return true;
+                }
+            }
+        }
+        echo "No nearby seats available. Booking failed." . PHP_EOL;
+    } else {
+        echo "Invalid input. Please enter a valid number of seats." . PHP_EOL;
+    }
+    return false;
+}
+
+displayCoach();
+while (true) {
+    echo "Enter number of seats to book (0 to exit): ";
+   $numSeats = intval(readline()); // Read input from user
+   if ($numSeats ==0)
+   break;
+   
+   if (bookSeats($numSeats)) {
+            displayCoach();
+        }
+}
+   
